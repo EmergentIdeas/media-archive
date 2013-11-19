@@ -21,7 +21,7 @@ public class Archive {
 	@OneToMany
 	protected List<VolumeDesc> volumes = new ArrayList<VolumeDesc>();
 	
-	protected void initUid() {
+	public void initUid() {
 		uid = UUID.randomUUID().toString();
 	}
 

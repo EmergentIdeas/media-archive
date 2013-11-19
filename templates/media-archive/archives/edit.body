@@ -5,3 +5,12 @@
 	<br/>
 	<button type="submit">Save</button>
 </form>
+
+<table>
+	<tr>
+		<th>ID</th>
+		<th>Location</th>
+	</tr>
+	__volumes::media-archive/archives/volume-view__
+</table>
+<a href="/archive/__id__/volume/create">Create Volume</a>

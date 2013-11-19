@@ -1,0 +1,41 @@
+<div class="control-group">
+	<label class="control-label" for="id">Id</label>
+	<div class="controls">
+		__id__
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="location">Location</label>
+	<div class="controls">
+		<input type="text" id="location" placeholder="" name="location" />
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" >Type</label>
+	<div class="controls">
+		<label><input type="radio" name="type" value="READ_WRITE"> Read/Write</label>
+		<label><input type="radio" name="type" value="READ"> Read</label>
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" >Access method</label>
+	<div class="controls">
+		<label><input type="radio" name="accessMethod" value="DISK"> Disk</label>
+		<label><input type="radio" name="accessMethod" value="HTTP"> HTTP</label>
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label">Volume designation</label>
+	<div class="controls">
+		<label><input type="radio" name="volumeDesignation" value="PRIMARY"> Primary</label>
+		<label><input type="radio" name="volumeDesignation" value="TRANSIENT"> Transient</label>
+		<label><input type="radio" name="volumeDesignation" value="REMOTE"> Remote</label>
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="encryptionKey">Encryption key</label>
+	<div class="controls">
+		<input type="text" id="encryptionKey" placeholder="" name="encryptionKey" />
+	</div>
+</div>
+

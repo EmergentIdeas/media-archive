@@ -1,0 +1,7 @@
+<h1>Create Volume</h1>
+
+<form action="/archive/__archive/id__/volume/create" method="post" class="form-horizontal" >
+	__::media-archive/volume-desc-fields__
+	<br/>
+	<button type="submit">Create</button>
+</form>
