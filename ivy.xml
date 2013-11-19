@@ -1,0 +1,21 @@
+<ivy-module version="2.0">
+	<info organisation="com.emergentideas" module="base" />
+	<configurations defaultconf="build"	defaultconfmapping="build->*;test->default">
+		<conf name="build" />
+		<conf name="deployment" />
+		<conf name="appdep" />
+		<conf name="test" />
+		<conf name="jetty" />
+		<conf name="sources" />
+	</configurations>
+	<dependencies>
+    	<dependency org="com.emergentideas" name="webhandle" rev="latest.integration" conf="build" />	
+		<dependency org="com.emergentideas" name="oak_login" rev="1.0.0.8" conf="appdep" />
+		<dependency org="com.emergentideas" name="page-editor" rev="1.0.0.1" conf="appdep" />
+		<dependency org="com.emergentideas" name="crud_tools" rev="latest.integration" conf="appdep,sources" />
+		<dependency org="com.emergentideas" name="entity-class-tools" rev="1.0.0.0" conf="test->appdep" />
+		<dependency org="com.emergentideas" name="tripartite-js" rev="1.0.0.1" conf="appdep" />
+		<dependency org="org.hsqldb" name="hsqldb" rev="2.3.1" conf="appdep->default"/>
+		<dependency org="org.eclipse.jetty" name="jetty-runner" rev="latest.integration" conf="jetty->*"/>
+	</dependencies>
+</ivy-module>

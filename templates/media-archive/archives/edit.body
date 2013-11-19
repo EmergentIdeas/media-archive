@@ -1,0 +1,7 @@
+<h1>Edit Archive</h1>
+
+<form action="/archive/__id__" method="post" class="form-horizontal" >
+	__::media-archive/archive-fields__
+	<br/>
+	<button type="submit">Save</button>
+</form>

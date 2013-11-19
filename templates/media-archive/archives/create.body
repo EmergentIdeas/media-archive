@@ -1,0 +1,7 @@
+<h1>Create Archive</h1>
+
+<form action="/archive/create" method="post" class="form-horizontal" >
+	__::media-archive/archive-fields__
+	<br/>
+	<button type="submit">Create</button>
+</form>
