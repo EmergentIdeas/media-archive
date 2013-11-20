@@ -6,6 +6,8 @@
 	<button type="submit">Save</button>
 </form>
 
+<br/>
+
 <table>
 	<tr>
 		<th>ID</th>
@@ -14,3 +16,5 @@
 	__volumes::media-archive/archives/volume-view__
 </table>
 <a href="/archive/__id__/volume/create">Create Volume</a>
+
+<br/>

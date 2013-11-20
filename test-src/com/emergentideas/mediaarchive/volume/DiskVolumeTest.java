@@ -4,10 +4,13 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
+import com.emergentideas.mediaarchive.interfaces.LogEntry;
+import com.emergentideas.mediaarchive.interfaces.LogEntry.EntryType;
 import com.emergentideas.mediaarchive.interfaces.ResourceDesc;
 
 public class DiskVolumeTest {
@@ -44,6 +47,16 @@ public class DiskVolumeTest {
 		
 		volume.delete(one);
 		assertNull(volume.hasResource(one));
+		
+		List<LogEntry> entries = volume.getLog();
+		
+		assertEquals(4, entries.size());
+		
+		assertEquals(EntryType.CREATE, entries.get(1).getEntryType());
+		assertNotNull(entries.get(1).getDate());
+		assertNotNull(entries.get(1).getId());
+		assertEquals(two, entries.get(1).getId());
+		
 		
 		
 	}

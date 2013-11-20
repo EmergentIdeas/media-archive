@@ -1,0 +1,13 @@
+__::fullHeader__
+
+<h1>Upload File</h1>
+
+<form action="/files/__archiveId__/file/create" method="post">
+	File:
+	<input type="file" name="data" />
+	
+	<button type="submit">Upload</button>
+
+</form>
+
+__::fullFooter__

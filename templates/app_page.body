@@ -1,1 +1,2 @@
-<div id="content">__::$contentArea__</div>
+__::header__
+<div id="content" class="container">__::$contentArea__</div>

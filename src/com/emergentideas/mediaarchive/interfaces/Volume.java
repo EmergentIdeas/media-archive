@@ -2,6 +2,7 @@ package com.emergentideas.mediaarchive.interfaces;
 
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public interface Volume {
@@ -42,8 +43,24 @@ public interface Volume {
 	public InputStream get(String id);
 	
 	/**
-	 * Deletes the resource from the volume
+	 * Deletes the resource from the volume. This doesn't mean the resource is no longer of value within
+	 * the archive just that you don't want it in this particular volume any more. This could be the case
+	 * if the volume is media player that you'd like to make some space on for different media.
 	 * @param id
 	 */
 	public void delete(String id);
+	
+	/**
+	 * Like delete, but is a signal that the resource is being removed because it is being removed from 
+	 * all volumes everywhere. This is like saying, this thing is crap, or there's a new version. I don't
+	 * want this taking up space anywhere.
+	 * @param id
+	 */
+	public void expunge(String id);
+	
+	/**
+	 * Returns a log of the changes made to the volume.
+	 * @return
+	 */
+	public List<? extends LogEntry> getLog();
 }

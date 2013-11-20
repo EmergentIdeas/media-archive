@@ -6,13 +6,17 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
+import com.emergentideas.mediaarchive.interfaces.LogEntry;
+import com.emergentideas.mediaarchive.interfaces.LogEntry.EntryType;
 import com.emergentideas.mediaarchive.interfaces.ResourceDesc;
 import com.emergentideas.mediaarchive.interfaces.Volume;
 import com.emergentideas.mediaarchive.services.CryptoService;
@@ -22,10 +26,12 @@ public class DiskVolume implements Volume {
 	protected VolumeType type = VolumeType.READ_WRITE;
 	protected File root;
 	protected File index;
+	protected File log;
 	
 	public DiskVolume(File root) {
 		this.root = root;
 		this.index = new File(root, ".arkindex");
+		this.log = new File(root, ".arklog");
 	}
 
 	
@@ -48,8 +54,11 @@ public class DiskVolume implements Volume {
 
 	public DiskResource hasResource(String id) {
 		try {
-			String indexContent = FileUtils.readFileToString(index);
-			return hasResource(indexContent, id);
+			if(index.exists()) {
+				String indexContent = FileUtils.readFileToString(index);
+				return hasResource(indexContent, id);
+			}
+			return null;
 		}
 		catch(Exception e) {
 			throw new RuntimeException(e);
@@ -87,6 +96,7 @@ public class DiskVolume implements Volume {
 			mime = determineMime(mime, name);
 			name = determineName(id, name);
 			
+			
 			File dest = new File(root, determinePath(id, name));
 			dest.getParentFile().mkdirs();
 			dest.createNewFile();
@@ -100,11 +110,19 @@ public class DiskVolume implements Volume {
 				temp.delete();
 			}
 			
-			DiskResource dr = new DiskResource(id, mime, dest);
-			FileWriter fw = new FileWriter(index, true);
-			fw.append(createResourceString(dr));
-			fw.flush();
-			fw.close();
+			DiskResource dr = hasResource(id);
+			if(dr == null) {
+				dr = new DiskResource(id, mime, dest);
+				FileWriter fw = new FileWriter(index, true);
+				fw.append(createResourceString(dr));
+				fw.flush();
+				fw.close();
+				writeLogEntry(id, "c");
+			}
+			else {
+				writeLogEntry(id, "u");
+			}
+			
 			
 			return dr;
 		}
@@ -113,8 +131,12 @@ public class DiskVolume implements Volume {
 		}
 	}
 	
-	@Override
 	public void delete(String id) {
+		doDelete(id);
+		writeLogEntry(id, "d");
+	}
+	
+	protected void doDelete(String id) {
 		Map<String, DiskResource> resources = getDescriptors();
 		if(resources.containsKey(id)) {
 			DiskResource focus = resources.get(id);
@@ -138,8 +160,56 @@ public class DiskVolume implements Volume {
 				throw new RuntimeException(e);
 			}
 		}
-		
 	}
+
+	
+	public void expunge(String id) {
+		doDelete(id);
+		writeLogEntry(id, "e");
+	}
+	
+	
+	public List<LogEntry> getLog() {
+		List<LogEntry> result = new ArrayList<LogEntry>();
+		try {
+			for(String line : FileUtils.readLines(log)) {
+				if(StringUtils.isBlank(line) || line.trim().startsWith("#")) {
+					continue;
+				}
+				SimpleLogEntry le = parseLogLine(line);
+				result.add(le);
+			}
+		}
+		catch(Exception e) {
+			throw new RuntimeException(e);
+		}
+		
+		return result;
+	}
+
+
+	/**
+	 * Writes a log entry with a given type and for a given id. This will be in the format
+	 * <timestamp>;<id>;<type>\n
+	 * @param type The type of the activity like:
+	 * c - create
+	 * u - update
+	 * d - delete
+	 * e - expunge
+	 * @param id
+	 */
+	protected void writeLogEntry(String id, String type) {
+		try {
+			FileWriter fw = new FileWriter(log, true);
+			fw.append(System.currentTimeMillis() + ";" + id + ";" + type + "\n");
+			fw.close();
+		}
+		catch(Exception e) {
+			throw new RuntimeException(e);
+		}
+
+	}
+
 
 	protected String createResourceString(DiskResource dr) {
 		return dr.getId() + ";" + dr.getMime() + ";" + getRelativePath(dr.getResource()) + "\n";
@@ -194,18 +264,45 @@ public class DiskVolume implements Volume {
 
 	
 	protected DiskResource parseEntry(String line) {
+		String[] parts = parseLineIntoParts(line);
+		File resource = new File(parts[2]);
+		if(resource.isAbsolute() == false) {
+			resource = new File(root, parts[2]);
+		}
+		
+		return new DiskResource(parts[0], parts[1], resource);
+	}
+	
+	protected SimpleLogEntry parseLogLine(String line) {
+		String[] parts = parseLineIntoParts(line);
+		EntryType type = null;
+		
+		if(parts[2].equals("c")) {
+			type = EntryType.CREATE;
+		}
+		else if(parts[2].equals("u")) {
+			type = EntryType.UPDATE;
+		}
+		else if(parts[2].equals("d")) {
+			type = EntryType.DELETE;
+		}
+		else if(parts[2].equals("e")) {
+			type = EntryType.EXPUNGE;
+		}
+
+		return new SimpleLogEntry(type, parts[1], Long.parseLong(parts[0]));
+	}
+	
+	protected String[] parseLineIntoParts(String line) {
 		line = line.trim();
 		int i1 = line.indexOf(';');
 		int i2 = line.indexOf(';', i1 + 1);
 		
-		String id = line.substring(0, i1);
-		String mime = line.substring(i1 + 1, i2);
-		String path = line.substring(i2 + 1);
-		File resource = new File(path);
-		if(resource.isAbsolute() == false) {
-			resource = new File(root, path);
-		}
+		String one = line.substring(0, i1);
+		String two = line.substring(i1 + 1, i2);
+		String three = line.substring(i2 + 1);
 		
-		return new DiskResource(id, mime, resource);
+		return new String[] {one, two, three };
 	}
+
 }

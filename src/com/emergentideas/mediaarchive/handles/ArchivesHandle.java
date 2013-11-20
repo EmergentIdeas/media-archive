@@ -17,7 +17,6 @@ public class ArchivesHandle extends CRUDHandle<Archive> {
 	public String getTemplatePrefix() {
 		return "media-archive/archives/";
 	}
-
 	
 	@Override
 	protected void addAssociatedData(InvocationContext context, Archive focus,
